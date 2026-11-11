@@ -1,55 +1,41 @@
 package org.firstinspires.ftc.teamcode;
 
-import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-import org.firstinspires.ftc.teamcode.subsystems.Camera;
-import org.firstinspires.ftc.teamcode.subsystems.Chassis;
-import org.firstinspires.ftc.teamcode.subsystems.Intake;
-import org.firstinspires.ftc.teamcode.subsystems.Shooter;
-import org.firstinspires.ftc.teamcode.utils.Robot;
-import org.firstinspires.ftc.teamcode.utils.SubsystemComponent;
+import com.seattlesolvers.solverslib.command.CommandOpMode;
+import com.seattlesolvers.solverslib.command.CommandScheduler;
+import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 
-import dev.nextftc.bindings.BindingManager;
-import dev.nextftc.core.components.BindingsComponent;
-import dev.nextftc.extensions.pedro.PedroComponent;
-import dev.nextftc.ftc.NextFTCOpMode;
-import dev.nextftc.ftc.components.BulkReadComponent;
+import org.firstinspires.ftc.teamcode.utils.MyRobot;
 
-public class TeleopMode extends NextFTCOpMode {
 
-    public Robot robot;
 
-    public TeleopMode(Robot.Alliance allianceColor){
-        robot = new Robot(allianceColor);
+public class TeleopMode extends CommandOpMode {
 
-        addComponents(
-                new SubsystemComponent(Intake.INSTANCE, Shooter.INSTANCE, Chassis.INSTANCE, Camera.INSTANCE),
-                new PedroComponent(Constants::createFollower),
-                BindingsComponent.INSTANCE,
-                BulkReadComponent.INSTANCE
-        );
+    public MyRobot robot;
+    public GamepadEx driver;
+    public MyRobot.Alliance color;
+
+
+    public TeleopMode(MyRobot.Alliance allianceColor){
+        color = allianceColor;
+
     }
 
     @Override
-    public void onInit() {
+    public void initialize(){
+        super.reset();
+        driver =  new GamepadEx(gamepad1);
+        robot = new MyRobot(color, hardwareMap, driver);
+        robot.initTeleop();
     }
 
     @Override
-    public void onStartButtonPressed() {
-        robot.initRobotTeleop();
-        robot.setBindings();
-        Intake.INSTANCE.intakeAutoOff().schedule();
+    public void run() {
+        robot.run();
     }
 
     @Override
-    public void onUpdate() {
-        BindingManager.update();
-    }
-
-    @Override
-    public void onStop() {
-        BindingManager.reset();
-
-        Chassis.INSTANCE.setLastPose();
+    public void end() {
+        robot.onEnd();
     }
 
 }
